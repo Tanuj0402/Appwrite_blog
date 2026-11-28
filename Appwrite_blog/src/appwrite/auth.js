@@ -1,5 +1,5 @@
 import conf from '../conf/conf.js'
-import { Client, Account, ID } from "appwrite";
+import { Client, Account, ID, AppwriteException } from "appwrite";
 
 export class AuthService {
 
@@ -32,12 +32,14 @@ export class AuthService {
 
     async getCurrentUser() {
         try {
-            await this.account.get();
+            return await this.account.get();
         } catch (error) {
-            throw error
-        }
+            if (error instanceof AppwriteException && error.code === 401) {
+                return null;
+            }
 
-        return null;
+            throw error;
+        }
     }
 
     async logout() {
